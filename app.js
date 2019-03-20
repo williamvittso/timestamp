@@ -1,26 +1,29 @@
-const express = require('express');
-const app = express();
-const router = express.Router();
+const http = require('http')
+const path = require('path')
+const express = require('express')
+const strftime = require('strftime')
+const router = express()
+const server = http.createServer(router)
 
-const path = __dirname + '/views/';
-const port = process.env.PORT || 8080;
+router.get('/:date', (req, res)=>{
+  let date = new Date();  
+  
+  if(/^\d*$/.test(req.params.date)){
+    date.setTime(req.params.date)
+  }else{
+    date = new Date(req.params.date)
+  }
+  res.set({'Content-Type': 'application/json'})  
+  
+  if(!date.getTime()) res.send(JSON.stringify({error: "Invalid data given"}))
+  else res.send(JSON.stringify({
+    unix: date.getTime(),
+    natural: strftime('%B %d %Y', date)
+  }))
+})
 
-router.use(function (req,res,next) {
-  console.log('/' + req.method);
-  next();
-});
-
-router.get('/', function(req,res){
-  res.sendFile(path + 'index.html');
-});
-
-router.get('/sharks', function(req,res){
-  res.sendFile(path + 'sharks.html');
-});
-
-app.use(express.static(path));
-app.use('/', router);
-
-app.listen(port, function () {
-  console.log('Example app listening on port '+ port)
+server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0",()=>{
+  let addr = server.address()
+  console.log("Timestamp microservice listening at",addr.address + ":" + addr.port);
+  
 })
