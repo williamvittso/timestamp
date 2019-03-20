@@ -1,0 +1,17 @@
+app:
+  container_name: app
+  restart: always
+  build: .
+  ports:
+    - "8080:8080"
+  links:
+    - mongo
+  volumes:
+    - ./:/home/node/app
+mongo:
+  container_name: mongo
+  image: mongo
+  volumes:
+    - ./data:/data/db
+  ports:
+    - "27017:27017"
